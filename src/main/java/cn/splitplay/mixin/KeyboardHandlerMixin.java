@@ -1,7 +1,10 @@
 package cn.splitplay.mixin;
 
+import cn.splitplay.client.KeyShortcuts;
 import cn.splitplay.input.Isolation;
 import net.minecraft.client.KeyboardHandler;
+import net.minecraft.client.Minecraft;
+import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -20,6 +23,13 @@ public abstract class KeyboardHandlerMixin {
     @Inject(method = "keyPress", at = @At("HEAD"), cancellable = true)
     private void splitplay$blockKeyPress(long window, int key, int scancode, int action, int modifiers,
             CallbackInfo callback) {
+        // The shortcut works whether or not input is split: in a mod pack the title screen may not
+        // render the buttons at all, so this has to be reachable from a plain key press.
+        if (action == GLFW.GLFW_PRESS
+                && KeyShortcuts.handle(key, (modifiers & GLFW.GLFW_MOD_SHIFT) != 0, Minecraft.getInstance())) {
+            callback.cancel();
+            return;
+        }
         if (Isolation.shouldCancelNative()) {
             Isolation.noteBlocked();
             callback.cancel();

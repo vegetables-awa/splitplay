@@ -404,3 +404,15 @@ Two notes:
 ## Licence
 
 MIT. See `LICENSE`.
+
+## Key shortcuts
+
+Some mod packs draw their own main menu and never render the vanilla widget list, so the
+`Two players` and `Devices` buttons can be invisible there even though they exist. Two keys work in
+every case:
+
+| Key | What it does |
+| --- | --- |
+| `F7` | starts two-player mode (same as the `Two players` button) |
+| `Shift`+`F7` | opens the device picker |
+| `F8` | opens the device picker (works in-game too, e.g. from the pause menu) |

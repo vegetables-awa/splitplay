@@ -62,6 +62,61 @@ public final class SplitPlayClient {
         return configFile;
     }
 
+    /**
+     * The Win32 handle of the game window, or 0 while the window does not exist yet.
+     *
+     * <p>{@code Window.getWindow()} is the GLFW window pointer, not the HWND: registering raw input or
+     * subclassing the window procedure against that value fails with "is not a window".</p>
+     */
+    private static long nativeWindowHandle() {
+        try {
+            net.minecraft.client.Minecraft minecraft = net.minecraft.client.Minecraft.getInstance();
+            if (minecraft == null || minecraft.getWindow() == null) {
+                return 0L;
+            }
+            com.sun.jna.platform.win32.WinDef.HWND hwnd =
+                    cn.splitplay.launch.NativeWindows.windowHandle(minecraft.getWindow().getWindow());
+            return hwnd == null ? 0L : com.sun.jna.Pointer.nativeValue(hwnd.getPointer());
+        } catch (Throwable ignored) {
+            return 0L;
+        }
+    }
+
+    private static final java.util.concurrent.atomic.AtomicInteger attachAttempts =
+            new java.util.concurrent.atomic.AtomicInteger();
+    private static volatile boolean attachGaveUp;
+
+    /**
+     * Upgrades the early message-only sink to the game window once the window exists.
+     *
+     * <p>Called from the client tick: at mod-init time {@code Minecraft.getInstance()} is null, and the
+     * pack-sized mod lists make the gap long enough that assuming otherwise breaks mouse input in the
+     * world (a sink stops receiving mouse {@code WM_INPUT} after the cursor is grabbed).</p>
+     */
+    public static void ensureWindowAttached() {
+        RawInputService current = service;
+        if (current == null || current.attachedToGameWindow() || attachGaveUp) {
+            return;
+        }
+        long handle = nativeWindowHandle();
+        if (handle == 0L) {
+            if (attachAttempts.incrementAndGet() > 600) {
+                attachGaveUp = true;
+                SplitPlay.LOGGER.warn("splitplay: gave up on the game window, keeping the separate sink");
+            }
+            return;
+        }
+        if (current.attachToWindow(handle)) {
+            attachGaveUp = false;
+            current.stopSink();
+            SplitPlay.LOGGER.info("splitplay: raw input attached to the game window");
+        } else if (attachAttempts.incrementAndGet() > 20) {
+            attachGaveUp = true;
+            SplitPlay.LOGGER.warn("splitplay: could not attach to the game window ({}), keeping the separate sink",
+                    current.lastFailure());
+        }
+    }
+
     public static RawInputService service() {
         return service;
     }
@@ -126,9 +181,9 @@ public final class SplitPlayClient {
         configFile = SplitConfig.defaultFile(FabricLoader.getInstance().getConfigDir());
         gameDir = FabricLoader.getInstance().getGameDir();
         config = SplitConfig.load(configFile);
-        SplitPlay.LOGGER.info("splitplay config {}: role='{}' keyboard={} mouse={} enabled={} sensitivity={}",
+        SplitPlay.LOGGER.info("splitplay config {}: role='{}' keyboard={} mouse={} enabled={} look={} cursor={}",
                 configFile, config.role, describe(config.keyboard), describe(config.mouse),
-                config.enabled, config.sensitivity);
+                config.enabled, config.sensitivity, config.cursorSensitivity);
 
         logDevices("startup");
 
@@ -150,20 +205,15 @@ public final class SplitPlayClient {
         });
         // Raw input is read from the game's own window: a message-only sink stops getting mouse
         // WM_INPUT once the game grabs the cursor, which is exactly the "nothing moves" state.
-        long glfwWindow = 0L;
-        try {
-            net.minecraft.client.Minecraft minecraft = net.minecraft.client.Minecraft.getInstance();
-            if (minecraft != null && minecraft.getWindow() != null) {
-                glfwWindow = minecraft.getWindow().getWindow();
-            }
-        } catch (Throwable ignored) {
-            // Not available this early; the fallback below still delivers keyboard input.
-        }
+        long glfwWindow = nativeWindowHandle();
         if (glfwWindow != 0L && service.attachToWindow(glfwWindow)) {
             SplitPlay.LOGGER.info("splitplay: raw input attached to the game window");
         } else {
-            SplitPlay.LOGGER.warn("splitplay: could not attach to the game window ({}), using a separate sink",
-                    service.lastFailure());
+            // Mod initialisers run before the game window exists, so this is the normal path on a big
+            // mod pack. Start the sink so keys work immediately, and upgrade to the window hook on the
+            // first client tick -- a sink stops seeing mouse input once the game grabs the cursor.
+            SplitPlay.LOGGER.warn("splitplay: the game window is not available yet ({}), starting a separate sink",
+                    glfwWindow == 0L ? "no window handle" : service.lastFailure());
             service.start();
         }
 

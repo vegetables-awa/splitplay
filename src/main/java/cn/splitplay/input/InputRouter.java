@@ -212,6 +212,8 @@ public final class InputRouter {
         if (minecraft.screen != lastScreen) {
             lastScreen = minecraft.screen;
             if (lastScreen != null) {
+                cn.splitplay.SplitPlay.LOGGER.info("splitplay: screen {} ({} widget(s))",
+                        lastScreen.getClass().getName(), lastScreen.children().size());
                 VirtualCursor.recentre(minecraft);
                 VirtualCursor.syncVanillaCursor(minecraft.mouseHandler);
             }
@@ -482,6 +484,12 @@ public final class InputRouter {
         }
 
         boolean down = event.down;
+        if (down) {
+            boolean shift = HELD.isKeyHeld(GLFW.GLFW_KEY_LEFT_SHIFT) || HELD.isKeyHeld(GLFW.GLFW_KEY_RIGHT_SHIFT);
+            if (cn.splitplay.client.KeyShortcuts.handle(key, shift, minecraft)) {
+                return;
+            }
+        }
         int action;
         if (down) {
             action = HELD.keyDown(key);

@@ -131,8 +131,40 @@ public final class RawInputService implements AutoCloseable, RawMessageSink {
             GateWindowHook.remove();
             return false;
         }
-        lastFailure = "could not hook the game window procedure";
+        lastFailure = "could not hook the game window procedure: " + GateWindowHook.lastFailure();
         return false;
+    }
+
+    /**
+     * Stops the message-only sink, keeping the listeners.
+     *
+     * <p>Used when the sink was started early and the game window becomes available later: reading
+     * from both would deliver every event twice, which is worse than either path alone.</p>
+     */
+    public synchronized void stopSink() {
+        if (attached != null) {
+            return;
+        }
+        Thread current = thread;
+        if (current == null) {
+            return;
+        }
+        running.set(false);
+        WinDef.HWND hwnd = window;
+        if (hwnd != null) {
+            try {
+                User32.INSTANCE.PostMessage(hwnd, WM_STOP_SERVICE, new WinDef.WPARAM(0), new WinDef.LPARAM(0));
+            } catch (Throwable ignored) {
+                // The thread also exits on its own when running turns false.
+            }
+        }
+        try {
+            current.join(1000L);
+        } catch (InterruptedException interrupted) {
+            Thread.currentThread().interrupt();
+        }
+        thread = null;
+        window = null;
     }
 
     /** True when raw input is read from the game window rather than a message-only sink. */

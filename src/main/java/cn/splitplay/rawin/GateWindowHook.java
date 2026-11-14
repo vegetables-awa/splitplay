@@ -1,6 +1,7 @@
 package cn.splitplay.rawin;
 
 import com.sun.jna.CallbackReference;
+import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef;
@@ -28,6 +29,12 @@ public final class GateWindowHook {
     private static Pointer originalProcedure;
     private static WinDef.HWND hookedWindow;
     private static RawMessageSink sink;
+    private static String lastFailure = "not attempted";
+
+    /** Why the last {@link #install(long, RawMessageSink)} returned false. */
+    public static String lastFailure() {
+        return lastFailure;
+    }
 
     private GateWindowHook() {
     }
@@ -43,9 +50,14 @@ public final class GateWindowHook {
             return true;
         }
         if (glfwWindow == 0L) {
+            lastFailure = "no window handle";
             return false;
         }
         try {
+            if (!User32.INSTANCE.IsWindow(new WinDef.HWND(new Pointer(glfwWindow)))) {
+                lastFailure = "handle " + Long.toHexString(glfwWindow) + " is not a window";
+                return false;
+            }
             WinDef.HWND hwnd = new WinDef.HWND(new Pointer(glfwWindow));
             procedure = (WinDef.HWND window, int message, WinDef.WPARAM wParam, WinDef.LPARAM lParam) -> {
                 try {
@@ -63,6 +75,9 @@ public final class GateWindowHook {
             Pointer replacement = CallbackReference.getFunctionPointer(procedure);
             originalProcedure = User32.INSTANCE.SetWindowLongPtr(hwnd, GWLP_WNDPROC, replacement);
             if (originalProcedure == null) {
+                int error = Native.getLastError();
+                lastFailure = "SetWindowLongPtr failed, win32 error " + error
+                        + " on handle " + Long.toHexString(glfwWindow);
                 procedure = null;
                 return false;
             }
@@ -70,6 +85,7 @@ public final class GateWindowHook {
             sink = target;
             return true;
         } catch (Throwable failure) {
+            lastFailure = failure.getClass().getSimpleName() + ": " + failure.getMessage();
             procedure = null;
             originalProcedure = null;
             hookedWindow = null;

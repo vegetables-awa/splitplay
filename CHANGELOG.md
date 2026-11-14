@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- `F7` starts two-player mode and `Shift`+`F7` / `F8` open the device picker, so the mod is usable in packs that
+  replace the title screen (FancyMenu) and never draw the added buttons.
+- The game window hook is retried from the client tick and the raw input service falls back to a
+  message-only sink when the window does not exist yet, so the mod also attaches on large packs.
+
 - The interface is translated: the title screen buttons and the whole device screen come from
   `assets/splitplay/lang`, with English and Simplified Chinese shipped.
 - The device screen has two sliders: look sensitivity and cursor speed. They are stored separately

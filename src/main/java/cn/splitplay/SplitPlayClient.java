@@ -178,7 +178,12 @@ public final class SplitPlayClient {
     }
 
     static void init() {
-        configFile = SplitConfig.defaultFile(FabricLoader.getInstance().getConfigDir());
+        // The second window shares this game directory (same pack, same configs, same resources), so
+        // it keeps its own settings file instead of a separate game directory.
+        configFile = SplitConfig.defaultFile(FabricLoader.getInstance().getConfigDir(),
+                cn.splitplay.launch.SecondInstance.isChild()
+                        ? cn.splitplay.launch.SecondInstance.CHILD_CONFIG_NAME
+                        : null);
         gameDir = FabricLoader.getInstance().getGameDir();
         config = SplitConfig.load(configFile);
         SplitPlay.LOGGER.info("splitplay config {}: role='{}' keyboard={} mouse={} enabled={} look={} cursor={}",

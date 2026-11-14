@@ -92,7 +92,18 @@ public final class SplitConfig {
     }
 
     public static Path defaultFile(Path configDir) {
-        return configDir.resolve(FILE_NAME);
+        return defaultFile(configDir, FILE_NAME);
+    }
+
+    /**
+     * Config path for a window that keeps its settings in a file of its own.
+     *
+     * <p>The two windows share a game directory (that is what makes the second one the same mod pack
+     * rather than a copy of it), so they cannot share one config file: each window needs its own
+     * device assignment.</p>
+     */
+    public static Path defaultFile(Path configDir, String fileName) {
+        return configDir.resolve(fileName == null || fileName.isBlank() ? FILE_NAME : fileName);
     }
 
     /**

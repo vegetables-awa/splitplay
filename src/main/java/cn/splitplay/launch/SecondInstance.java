@@ -23,14 +23,21 @@ import java.util.Optional;
  * is synthesised from facts the JVM always knows: the java executable, its own JVM arguments, its
  * class path, and {@code sun.java.command} for the main class plus game arguments.</p>
  *
- * <p>The child gets its own game directory so that it has its own config, options and logs. Its
- * {@code mods} directory is a copy of this one, because mods are discovered per game directory and
- * the second player needs the same mods.</p>
+ * <p>The child runs in <em>this</em> game directory. A separate directory was tried first and looked
+ * wrong: the mods were there, but every configuration, resource pack and menu layout of the pack was
+ * missing, so the second window behaved like a bare install of the same mods. Sharing the directory
+ * keeps it the same pack; only the settings file, the player name and the console logs differ.</p>
  */
 public final class SecondInstance {
 
     /** Set for the child process, so it does not offer to open a third window. */
     private static final String CHILD_ENV = "SPLITPLAY_CHILD";
+
+    /** The second window's settings file, inside the shared config directory. */
+    public static final String CHILD_CONFIG_NAME = "splitplay-p2.json";
+
+    /** Working directory of the second window: only its log file lives here. */
+    public static final String CHILD_CWD_DIR = "splitplay-p2-logs";
 
     private static final String DEFAULT_SECOND_NAME = "P2";
 
@@ -41,9 +48,9 @@ public final class SecondInstance {
         return "1".equals(System.getenv(CHILD_ENV));
     }
 
-    /** Directory used for the second window: a subdirectory of this window's game directory. */
+    /** Directory used for the second window: this window's own directory. */
     public static Path childGameDir(Path gameDir) {
-        return CommandLine.childGameDir(gameDir);
+        return CommandLine.sharedGameDir(gameDir);
     }
 
     /**
@@ -56,47 +63,32 @@ public final class SecondInstance {
         SplitPlay.LOGGER.info("splitplay: second window command has {} arguments ({} rewritten)",
                 command.size(), replaced);
 
-        Path childDir = childGameDir(gameDir);
-        Files.createDirectories(childDir.resolve("config"));
-        Path logDir = childDir.resolve("logs");
-        Files.createDirectories(logDir);
-        seedChildConfig(childDir.resolve("config").resolve("splitplay.json"));
-        copyOptions(gameDir, childDir);
-        copyMods(gameDir, childDir);
-        SplitPlay.LOGGER.info("splitplay: starting second window in {}", childDir);
+        Path configDir = gameDir.resolve("config");
+        Files.createDirectories(configDir);
+        seedChildConfig(configDir.resolve(CHILD_CONFIG_NAME));
+        SplitPlay.LOGGER.info("splitplay: starting second window in {} (shared game directory, settings in {})",
+                gameDir, CHILD_CONFIG_NAME);
 
         ProcessBuilder builder = new ProcessBuilder(command);
-        // The child runs in its own directory so that its logs and options do not collide with
-        // this window's: two processes appending to one log file trip over each other.
-        builder.directory(childDir.toFile());
+        // Same game directory on purpose: the second window has to be the same mod pack. The working
+        // directory is the exception -- Minecraft writes logs/latest.log relative to it, and two
+        // processes writing one file truncate and interleave each other's log.
+        Path childCwd = gameDir.resolve(CHILD_CWD_DIR);
+        Files.createDirectories(childCwd.resolve("logs"));
+        builder.directory(childCwd.toFile());
         builder.environment().put(CHILD_ENV, "1");
         // Never a pipe: a piped stdout blocks the child the moment nobody drains it, which looks
         // exactly like a frozen second window. Files are drained by the disk.
+        Path logDir = childCwd.resolve("logs");
+        Files.createDirectories(logDir);
         builder.redirectOutput(ProcessBuilder.Redirect.appendTo(
-                logDir.resolve("splitplay-stdout.txt").toFile()));
+                logDir.resolve("splitplay-p2-stdout.txt").toFile()));
         builder.redirectError(ProcessBuilder.Redirect.appendTo(
-                logDir.resolve("splitplay-stderr.txt").toFile()));
+                logDir.resolve("splitplay-p2-stderr.txt").toFile()));
 
         Process child = builder.start();
         SplitPlay.LOGGER.info("splitplay: second window started, pid {}", child.pid());
         return child;
-    }
-
-    /**
-     * Copies this window's options to the child on first run: that skips the "welcome to
-     * Minecraft" screen and gives the second window the same render distance and GUI scale.
-     */
-    private static void copyOptions(Path gameDir, Path childDir) {
-        Path source = gameDir.resolve("options.txt");
-        Path target = childDir.resolve("options.txt");
-        if (!Files.isRegularFile(source) || Files.exists(target)) {
-            return;
-        }
-        try {
-            Files.copy(source, target);
-        } catch (IOException e) {
-            SplitPlay.LOGGER.warn("splitplay: could not copy options.txt: {}", e.toString());
-        }
     }
 
     /** Gives the child a starting config so the second window knows it is the second player. */
@@ -126,6 +118,15 @@ public final class SecondInstance {
      */
     static List<String> currentCommand() throws IOException {
         String java = exePath();
+        // Windows keeps the exact splits, including arguments that contain spaces.
+        List<String> nativeArguments = NativeCommandLine.arguments();
+        if (nativeArguments != null && nativeArguments.size() > 1) {
+            List<String> command = new ArrayList<>(nativeArguments);
+            command.set(0, java);
+            SplitPlay.LOGGER.info("splitplay: reusing this window's command line ({} argument(s))",
+                    command.size() - 1);
+            return command;
+        }
         Optional<String[]> arguments = ProcessHandle.current().info().arguments();
         if (arguments.isPresent() && arguments.get().length > 0) {
             List<String> command = new ArrayList<>(arguments.get().length + 1);
@@ -169,21 +170,6 @@ public final class SecondInstance {
             return candidate.getAbsolutePath();
         }
         return "java";
-    }
-
-    /**
-     * Mirrors the mod jars into the child's game directory. The mods are discovered per game
-     * directory, and the second player needs the same set; {@link ModMirror} also drops jars the parent
-     * no longer has so the two windows cannot end up on different versions of a mod.
-     */
-    private static void copyMods(Path gameDir, Path childDir) {
-        try {
-            ModMirror.Result result = ModMirror.mirror(gameDir.resolve("mods"), childDir.resolve("mods"));
-            SplitPlay.LOGGER.info("splitplay: {} mod jar(s) for {}, {} copied, {} already current, {} removed",
-                    result.found(), childDir.resolve("mods"), result.copied(), result.kept(), result.pruned());
-        } catch (IOException e) {
-            SplitPlay.LOGGER.warn("splitplay: could not mirror the mods directory: {}", e.toString());
-        }
     }
 
     /** Same scheme the game itself uses for offline players. */

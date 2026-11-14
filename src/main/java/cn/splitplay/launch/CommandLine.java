@@ -20,9 +20,9 @@ public final class CommandLine {
     private CommandLine() {
     }
 
-    /** Directory used for the second window: a subdirectory of this window's game directory. */
-    public static Path childGameDir(Path gameDir) {
-        return gameDir.resolve("splitplay-p2");
+    /** Directory of the second window: the same one, so the second window is the same mod pack. */
+    public static Path sharedGameDir(Path gameDir) {
+        return gameDir;
     }
 
     /**
@@ -30,7 +30,7 @@ public final class CommandLine {
      * a quick way to see from the log whether the command looked like a game command at all.
      */
     public static int rewrite(List<String> command, Path gameDir, String username) {
-        String childDir = childGameDir(gameDir).toString();
+        String sharedDir = sharedGameDir(gameDir).toString();
         String uuid = offlineUuid(username);
         int changed = 0;
         boolean sawGameDir = false;
@@ -50,9 +50,9 @@ public final class CommandLine {
                     changed++;
                 }
                 case "--gameDir" -> {
-                    command.set(i + 1, childDir);
+                    // Left alone: pointing the second window at another directory made it a bare copy
+                    // of the mods instead of the same pack.
                     sawGameDir = true;
-                    changed++;
                 }
                 default -> {
                 }
@@ -60,7 +60,7 @@ public final class CommandLine {
         }
         if (!sawGameDir) {
             command.add("--gameDir");
-            command.add(childDir);
+            command.add(sharedDir);
             changed++;
         }
         return changed;

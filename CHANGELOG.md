@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- The second window now runs in the same game directory as the first, so it is the same mod pack
+  (same configs, resource packs, menu layout) instead of a copy of the mods; it keeps its settings in
+  `config/splitplay-p2.json` and its log in `splitplay-p2-logs/`.
+- Arguments are read with `CommandLineToArgvW`, so a version name containing spaces no longer splits
+  into several arguments and leaves the second window without the pack's mods.
+
 - `F7` starts two-player mode and `Shift`+`F7` / `F8` open the device picker, so the mod is usable in packs that
   replace the title screen (FancyMenu) and never draw the added buttons.
 - The game window hook is retried from the client tick and the raw input service falls back to a

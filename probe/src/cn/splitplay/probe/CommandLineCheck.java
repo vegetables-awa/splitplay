@@ -55,10 +55,11 @@ public final class CommandLineCheck {
                 "--width", "1280",
                 "--height", "720"));
         int changed = CommandLine.rewrite(command, java.nio.file.Path.of("E:/mc/versions/1.21.1-Fabric-SP"), "P2");
-        check("rewrite count", 4, changed);
+        // username, uuid, accessToken: the game directory is deliberately left alone, so it is not counted.
+        check("rewrite count", 3, changed);
         check("rewrite username", "P2", value(command, "--username"));
         check("rewrite uuid", CommandLine.offlineUuid("P2"), value(command, "--uuid"));
-        check("rewrite gameDir", "E:\\mc\\versions\\1.21.1-Fabric-SP\\splitplay-p2",
+        check("rewrite leaves gameDir alone", "E:/mc/versions/1.21.1-Fabric-SP",
                 value(command, "--gameDir"));
         check("rewrite keeps version", "1.21.1-Fabric-SP", value(command, "--version"));
         check("rewrite keeps width", "1280", value(command, "--width"));
@@ -70,7 +71,7 @@ public final class CommandLineCheck {
                 "java.exe", "KnotClient", "--username", "SP1"));
         int changed2 = CommandLine.rewrite(missing, java.nio.file.Path.of("E:/mc"), "P2");
         check("rewrite appends gameDir", 2, changed2);
-        check("rewrite appended value", "E:\\mc\\splitplay-p2",
+        check("rewrite appended value", "E:\\mc",
                 missing.get(missing.size() - 1));
         check("rewrite appended flag", "--gameDir", missing.get(missing.size() - 2));
 

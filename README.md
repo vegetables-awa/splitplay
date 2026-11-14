@@ -416,3 +416,21 @@ every case:
 | `F7` | starts two-player mode (same as the `Two players` button) |
 | `Shift`+`F7` | opens the device picker |
 | `F8` | opens the device picker (works in-game too, e.g. from the pause menu) |
+
+## Two windows, one game directory
+
+The second window runs in **the same game directory** as the first one, with the same arguments; only
+the player name differs. That is what makes it the same mod pack: an earlier version gave the child a
+directory of its own, which produced a window with the same mod jars but none of the pack's
+configuration, resource packs or menu layout -- instantly recognisable as "not the pack".
+
+Two things are kept apart so the windows do not fight over them:
+
+- **settings**: the child reads `config/splitplay-p2.json` instead of `config/splitplay.json`;
+- **logs**: the child's working directory is `splitplay-p2-logs/`, because Minecraft writes
+  `logs/latest.log` relative to the working directory and two processes appending to one file
+  truncate and garble each other's log.
+
+The arguments are read with `CommandLineToArgvW` rather than by splitting a string: a pack whose
+version is called `Cobblemon Official Modpack [Fabric]` arrives as five arguments when the spaces are
+guessed, the game ignores them, and the second window starts as a bare Fabric install.

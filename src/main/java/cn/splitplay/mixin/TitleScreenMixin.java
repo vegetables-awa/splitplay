@@ -21,14 +21,14 @@ public abstract class TitleScreenMixin {
         Screen screen = (Screen) (Object) this;
         // The second window gets the device picker but not the button that starts another window.
         if (!SecondInstance.isChild()) {
-            Button button = Button.builder(Component.literal("Two players"), b -> SplitLauncher.startTwoPlayerMode())
+            Button button = Button.builder(Component.translatable("splitplay.button.two_players"), b -> SplitLauncher.startTwoPlayerMode())
                     .bounds(6, screen.height - 26, 110, 20)
                     .build();
             ((ScreenAccessor) screen).splitplay$addRenderableWidget(button);
         }
 
         // Without this the config file has to be edited by hand, which nobody should have to do.
-        Button devices = Button.builder(Component.literal("Devices"),
+        Button devices = Button.builder(Component.translatable("splitplay.button.devices"),
                         b -> net.minecraft.client.Minecraft.getInstance().setScreen(new DeviceScreen(screen)))
                 .bounds(120, screen.height - 26, 90, 20)
                 .build();

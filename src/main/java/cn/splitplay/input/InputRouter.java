@@ -391,7 +391,9 @@ public final class InputRouter {
         int logIndex = turnLogged < 5 ? ++turnLogged : 0;
         try {
             double base = minecraft.options.sensitivity().get() * 0.6D + 0.2D;
-            double scale = base * base * base * 8.0D;
+            // The config multiplier is applied on top of the vanilla curve, so 1.0 is exactly vanilla.
+            double configured = SplitPlayClient.config() == null ? 1.0D : SplitPlayClient.config().sensitivity;
+            double scale = base * base * base * 8.0D * configured;
             double invert = minecraft.options.invertYMouse().get() ? -1.0D : 1.0D;
             double turnX = dx * scale;
             double turnY = dy * scale * invert;

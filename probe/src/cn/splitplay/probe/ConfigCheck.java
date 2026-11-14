@@ -48,6 +48,9 @@ public final class ConfigCheck {
         check("default keyboard is empty", "".equals(config.keyboard));
         check("default mouse is empty", "".equals(config.mouse));
         check("default sensitivity is 1", config.sensitivity == 1.0D);
+        check("default cursor sensitivity is 1", config.cursorSensitivity == 1.0D);
+        check("look and cursor multipliers are separate fields",
+                SplitConfig.MIN_CURSOR != SplitConfig.MIN_LOOK);
         check("default layout is vertical", "vertical".equals(config.layout));
         check("default is enabled", config.enabled);
         check("nothing assigned is not complete", !config.isComplete());
@@ -99,8 +102,21 @@ public final class ConfigCheck {
         Files.writeString(high, "{\"sensitivity\":99.0,\"layout\":\"horizontal\",\"enabled\":true}",
                 StandardCharsets.UTF_8);
         SplitConfig clamped = SplitConfig.load(high);
-        check("sensitivity above 10 is clamped down", clamped.sensitivity == 10.0D);
+        check("sensitivity above 3 is clamped down", clamped.sensitivity == 3.0D);
+        check("sensitivity is clamped at the slider maximum", SplitConfig.MAX_LOOK == 3.0D);
         check("horizontal layout survives", "horizontal".equals(clamped.layout));
+
+        Path cursorFile = dir.resolve("cursor.json");
+        Files.writeString(cursorFile, "{\"cursorSensitivity\":99.0,\"enabled\":true}", StandardCharsets.UTF_8);
+        check("cursor above 3 is clamped down",
+                SplitConfig.load(cursorFile).cursorSensitivity == 3.0D);
+        Files.writeString(cursorFile, "{\"cursorSensitivity\":0.01}", StandardCharsets.UTF_8);
+        check("cursor below 0.25 is clamped up",
+                SplitConfig.load(cursorFile).cursorSensitivity == 0.25D);
+        Files.writeString(cursorFile, "{\"cursorSensitivity\":2.5,\"sensitivity\":0.5}", StandardCharsets.UTF_8);
+        SplitConfig two = SplitConfig.load(cursorFile);
+        check("cursor 2.5 survives", two.cursorSensitivity == 2.5D);
+        check("look 0.5 survives next to it", two.sensitivity == 0.5D);
         check("unknown fields are ignored",
                 SplitConfig.load(write(dir, "extra.json", "{\"nonsense\":1,\"enabled\":true}")).enabled);
     }
@@ -111,6 +127,7 @@ public final class ConfigCheck {
         original.keyboard = "\\\\?\\HID#VID_2A7A&PID_8A57&MI_00#7&1288512d&0&0000#{884b96c3}";
         original.mouse = "\\\\?\\HID#VID_30FA&PID_0400#6&13506808&0&0000#{378de44c}";
         original.sensitivity = 1.5D;
+        original.cursorSensitivity = 2.25D;
         original.layout = "horizontal";
 
         Path file = dir.resolve("roundtrip.json");
@@ -126,6 +143,7 @@ public final class ConfigCheck {
         check("keyboard survives", original.keyboard.equals(loaded.keyboard));
         check("mouse survives", original.mouse.equals(loaded.mouse));
         check("sensitivity survives", loaded.sensitivity == 1.5D);
+        check("cursor sensitivity survives", loaded.cursorSensitivity == 2.25D);
         check("layout survives", "horizontal".equals(loaded.layout));
         check("round trip isolates", loaded.isolatesInput());
     }

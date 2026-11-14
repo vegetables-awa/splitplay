@@ -31,6 +31,9 @@ public final class DeviceScreenLayout {
     /** Space at the bottom of the screen reserved for Save and Cancel. */
     public static final int BUTTON_STRIP = 40;
 
+    /** Height of the slider row that sits between the device rows and the buttons. */
+    public static final int SLIDER_ROW = 26;
+
     private final int width;
     private final int height;
     private final int columnWidth;
@@ -50,7 +53,9 @@ public final class DeviceScreenLayout {
         this.columnWidth = Math.max(0, Math.min(COLUMN_WIDTH, usable / 2));
         this.keyboardX = width / 2 - CENTRE_GAP / 2 - columnWidth;
         this.mouseX = width / 2 + CENTRE_GAP / 2;
-        int rowsSpace = height - BUTTON_STRIP - ROW_TOP;
+        // The slider row is carved out of the row space, not laid over it: a row whose button is covered
+        // by a slider is as unusable as one that is off-screen.
+        int rowsSpace = height - BUTTON_STRIP - SLIDER_ROW - ROW_TOP;
         this.visibleRows = Math.max(0, rowsSpace / ROW_HEIGHT);
         this.buttonY = height - BUTTON_STRIP;
         this.saveX = width / 2 - 154;
@@ -111,6 +116,11 @@ public final class DeviceScreenLayout {
     /** Y of the Save and Cancel buttons. */
     public int buttonY() {
         return buttonY;
+    }
+
+    /** Y of the sensitivity sliders, just above the Save/Cancel buttons. */
+    public int sliderY() {
+        return buttonY - SLIDER_ROW + 4;
     }
 
     public int saveX() {

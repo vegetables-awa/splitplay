@@ -1,0 +1,21 @@
+{
+  "splitplay.button.two_players": "Two players",
+  "splitplay.button.devices": "Devices",
+  "splitplay.devices.title": "Devices for this window",
+  "splitplay.devices.header": "This window is %s. Pick one keyboard and one mouse; the other window picks the rest.",
+  "splitplay.devices.unnamed": "unnamed",
+  "splitplay.devices.keyboard": "Keyboard",
+  "splitplay.devices.mouse": "Mouse",
+  "splitplay.devices.save": "Save",
+  "splitplay.devices.cancel": "Cancel",
+  "splitplay.devices.none.keyboard": "no keyboard found",
+  "splitplay.devices.none.mouse": "no mouse found",
+  "splitplay.devices.hidden": "window too short: %s keyboard(s) and %s mouse/mice hidden",
+  "splitplay.devices.split": "Input is split: this window only listens to the devices above.",
+  "splitplay.devices.not_split": "Input is not split yet: assign both devices and save.",
+  "splitplay.devices.taken_hint": "Devices marked \"in use\" belong to the other window and cannot be picked.",
+  "splitplay.devices.in_use": " - in use by %s",
+  "splitplay.devices.virtual": " (virtual)",
+  "splitplay.sensitivity.look": "Look sensitivity: %s",
+  "splitplay.sensitivity.cursor": "Cursor speed: %s"
+}

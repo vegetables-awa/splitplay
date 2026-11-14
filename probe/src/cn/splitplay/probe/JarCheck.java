@@ -76,6 +76,26 @@ public final class JarCheck {
         check("jar ships the license", true, entries.containsKey("LICENSE"));
         check("jar ships the icon", true, entries.containsKey("assets/splitplay/icon.png"));
 
+        // Translations are shipped data, not code: a missing lang file is invisible until a player in
+        // the other language sees raw keys on the buttons.
+        check("jar ships the english translations", true,
+                entries.containsKey("assets/splitplay/lang/en_us.json"));
+        check("jar ships the chinese translations", true,
+                entries.containsKey("assets/splitplay/lang/zh_cn.json"));
+        String zh = entries.containsKey("assets/splitplay/lang/zh_cn.json")
+                ? new String(entries.get("assets/splitplay/lang/zh_cn.json"), StandardCharsets.UTF_8) : "";
+        String en = entries.containsKey("assets/splitplay/lang/en_us.json")
+                ? new String(entries.get("assets/splitplay/lang/en_us.json"), StandardCharsets.UTF_8) : "";
+        check("chinese translations name the device keys", true,
+                zh.contains("splitplay.devices.title") && zh.contains("splitplay.devices.save"));
+        check("chinese translations name the buttons", true,
+                zh.contains("splitplay.button.two_players") && zh.contains("splitplay.button.devices"));
+        check("chinese translations cover the sliders", true,
+                zh.contains("splitplay.sensitivity.look") && zh.contains("splitplay.sensitivity.cursor"));
+        check("both languages define the same keys", true,
+                java.util.Set.copyOf(keysOf(en)).equals(keysOf(zh)));
+        check("chinese text is actually chinese", true, zh.codePoints().anyMatch(c -> c > 0x2E80));
+
         String metadata = text(entries, "fabric.mod.json");
         check("metadata declares the id", true, metadata.contains("\"id\": \"splitplay\""));
         check("metadata declares the license", true, metadata.contains("\"license\": \"MIT\""));
@@ -166,6 +186,17 @@ public final class JarCheck {
             out.write(buffer, 0, read);
         }
         return out.toByteArray();
+    }
+
+    /** The "@key" style keys of a flat lang json, without values. */
+    private static java.util.Set<String> keysOf(String json) {
+        java.util.Set<String> keys = new java.util.TreeSet<>();
+        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("\"([a-z0-9_.]+)\"\\s*:")
+                .matcher(json);
+        while (matcher.find()) {
+            keys.add(matcher.group(1));
+        }
+        return keys;
     }
 
     private static void check(String name, Object expected, Object actual) {

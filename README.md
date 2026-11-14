@@ -93,10 +93,17 @@ same jar and cannot tell each other apart. The file looks like this and can also
   "keyboard": "\\\\?\\HID#VID_1C4F&PID_0002&MI_00#7&...#{884b96c3-56ef-11d1-bc8c-00a0c91405dd}",
   "mouse": "\\\\?\\HID#VID_10C4&PID_0005#6&...#{378de44c-56ef-11d1-bc8c-00a0c91405dd}",
   "sensitivity": 1.0,
+  "cursorSensitivity": 1.0,
   "enabled": true,
   "layout": "vertical"
 }
 ```
+
+`sensitivity` scales the camera (1.0 is exactly vanilla, 0.1 to 3.0) and `cursorSensitivity` scales
+how fast the drawn pointer crosses a menu (0.25 to 3.0). They are separate on purpose: slowing the
+camera down should not make the pointer crawl across an inventory. Both are also editable in the
+*Devices* screen with two sliders, which is what most players will use; the json values are clamped
+when the file is loaded, so a typo cannot make the pointer unusable.
 
 `layout` decides how the two windows are placed: `"vertical"` stacks them (one above the other),
 `"horizontal"` puts them side by side, which is the better choice on a monitor that is wider than
@@ -192,6 +199,13 @@ Movement is applied **per frame**, not per tick: a raw mouse reports at 125-1000
 20 times a second reads as lag. The camera keeps vanilla's own pacing by scaling the same deltas, so
 the sensitivity does not change. A cursor hovering an item slot moves at 55% speed with a soft
 transition, which is what makes clicking a 16x16 slot feel steady.
+
+## Language
+
+The interface follows the game's language: `assets/splitplay/lang/en_us.json` and `zh_cn.json` ship in
+the jar, so a Chinese client shows `双人同屏` / `设备…` and English clients keep the English labels.
+Adding a language is one json file with the same keys; the `-JarCheck` suite fails if the two shipped
+languages ever disagree on the key set.
 
 ## Known limits
 

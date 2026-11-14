@@ -46,7 +46,9 @@ public final class ScreenMouse {
             return;
         }
         double guiScale = Math.max(minecraft.getWindow().getGuiScale(), 1.0D);
-        double sensitivity = SplitPlayClient.config() == null ? 1.0D : SplitPlayClient.config().sensitivity;
+        // Cursor speed is its own multiplier: the camera one would make the pointer crawl as soon as a
+        // player slows the look down.
+        double sensitivity = SplitPlayClient.config() == null ? 1.0D : SplitPlayClient.config().cursorSensitivity;
         double target = hoveringSlot(screen) ? HOVER_SPEED : 1.0D;
         speedMultiplier += (target - speedMultiplier) * HOVER_BLEND;
         double speed = BASE_CURSOR_SPEED * guiScale * sensitivity * speedMultiplier;

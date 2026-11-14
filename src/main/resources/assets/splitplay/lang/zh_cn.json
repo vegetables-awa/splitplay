@@ -1,0 +1,21 @@
+{
+  "splitplay.button.two_players": "双人同屏",
+  "splitplay.button.devices": "设备…",
+  "splitplay.devices.title": "本窗口的设备",
+  "splitplay.devices.header": "本窗口是 %s。选一套键盘和鼠标；另一套留给另一个窗口。",
+  "splitplay.devices.unnamed": "未命名",
+  "splitplay.devices.keyboard": "键盘",
+  "splitplay.devices.mouse": "鼠标",
+  "splitplay.devices.save": "保存",
+  "splitplay.devices.cancel": "取消",
+  "splitplay.devices.none.keyboard": "没有找到键盘",
+  "splitplay.devices.none.mouse": "没有找到鼠标",
+  "splitplay.devices.hidden": "窗口太矮：%s 个键盘、%s 个鼠标未显示",
+  "splitplay.devices.split": "已分流：本窗口只响应上面选中的设备。",
+  "splitplay.devices.not_split": "尚未分流：两样设备都选好并保存后生效。",
+  "splitplay.devices.taken_hint": "标着「被占用」的设备属于另一个窗口，不能选。",
+  "splitplay.devices.in_use": " - 已被 %s 占用",
+  "splitplay.devices.virtual": "（虚拟设备）",
+  "splitplay.sensitivity.look": "视角灵敏度：%s",
+  "splitplay.sensitivity.cursor": "光标速度：%s"
+}

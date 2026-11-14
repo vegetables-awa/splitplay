@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- The interface is translated: the title screen buttons and the whole device screen come from
+  `assets/splitplay/lang`, with English and Simplified Chinese shipped.
+- The device screen has two sliders: look sensitivity and cursor speed. They are stored separately
+  (`sensitivity` for the camera, `cursorSensitivity` for the pointer) and hand-edited values are
+  clamped on load.
+
 - The pointer is locked to the window that is in front (clip + hide + hold at the client centre,
   re-asserted every frame), and released by a watchdog the moment another application is focused.
 - Movement is applied once per rendered frame instead of once per tick, and the cursor slows down

@@ -8,7 +8,7 @@ import cn.splitplay.client.DeviceScreenLayout;
  * <p>The picker is the only way to assign a keyboard and a mouse, so a wrong coordinate is not cosmetic:
  * a row past the bottom edge cannot be clicked, and a row that reaches into the Save/Cancel strip is
  * actively misleading, because the buttons were added later and swallow the click. The split layout makes
- * this concrete — 1920x540 at GUI scale 2 is 960x270 in GUI units, which fits seven rows and no more.
+ * this concrete — 1920x540 at GUI scale 2 is 960x270 in GUI units, which fits six device rows and no more.
  */
 public final class DeviceScreenCheck {
 
@@ -35,13 +35,18 @@ public final class DeviceScreenCheck {
     /** The second window right after the launcher placed it: 1920x540 at GUI scale 2. */
     private static void splitWindow() {
         DeviceScreenLayout layout = DeviceScreenLayout.of(960, 270);
-        check("split window fits seven rows", 7, layout.visibleRows());
+        check("split window fits six rows", 6, layout.visibleRows());
         check("split window keeps the full column width", 190, layout.columnWidth());
         check("keyboard column starts left of centre", 284, layout.keyboardX());
         check("keyboard column ends before the gap", 474, layout.keyboardRight());
         check("mouse column starts right of the gap", 486, layout.mouseX());
         check("mouse column stays on screen", 676, layout.mouseRight());
-        check("rows stop above the button strip", 210, layout.rowsBottom());
+        check("rows stop above the slider row", 188, layout.rowsBottom());
+        check("sliders sit between rows and buttons", 208, layout.sliderY());
+        check("slider row clears the rows", Boolean.TRUE,
+                layout.rowsBottom() <= layout.sliderY());
+        check("slider row clears the buttons", Boolean.TRUE,
+                layout.sliderY() + 20 <= layout.buttonY());
         check("buttons sit on the strip", 230, layout.buttonY());
         check("save button is left of cancel", 326, layout.saveX());
         check("cancel button is right of save", 484, layout.cancelX());
@@ -52,13 +57,17 @@ public final class DeviceScreenCheck {
     /** A 1280x720 window at GUI scale 3, the size the first window starts at. */
     private static void titleWindow() {
         DeviceScreenLayout layout = DeviceScreenLayout.of(426, 240);
-        check("scale 3 window fits six rows", 6, layout.visibleRows());
+        check("scale 3 window fits five rows", 5, layout.visibleRows());
         check("scale 3 columns keep their width", 190, layout.columnWidth());
         check("scale 3 keyboard column starts on screen", 17, layout.keyboardX());
         check("scale 3 mouse column stays on screen", 409, layout.mouseRight());
         check("scale 3 mouse column fits", Boolean.TRUE, layout.mouseRight() <= layout.width());
-        check("scale 3 rows stop above the buttons", 188, layout.rowsBottom());
+        check("scale 3 rows stop above the sliders", 166, layout.rowsBottom());
         check("scale 3 buttons sit on the strip", 200, layout.buttonY());
+        check("scale 3 sliders clear the rows", Boolean.TRUE,
+                layout.rowsBottom() <= layout.sliderY());
+        check("scale 3 sliders clear the buttons", Boolean.TRUE,
+                layout.sliderY() + 20 <= layout.buttonY());
         check("scale 3 rows never reach the buttons", Boolean.TRUE,
                 layout.rowsBottom() <= layout.buttonY());
     }
@@ -102,7 +111,7 @@ public final class DeviceScreenCheck {
         check("just above row zero is not a hit", -1, layout.rowAt(55));
         check("row zero spans its whole height", 0, layout.rowAt(56 + 21));
         check("the next row starts after it", 1, layout.rowAt(56 + 22));
-        check("the last visible row is a hit", 6, layout.rowAt(layout.rowY(6) + 21));
+        check("the last visible row is a hit", 5, layout.rowAt(layout.rowY(5) + 21));
         check("below the rows is not a hit", -1, layout.rowAt(layout.rowsBottom()));
         check("the button strip is not a hit", -1, layout.rowAt(layout.buttonY()));
         check("a negative coordinate is not a hit", -1, layout.rowAt(-5));
@@ -110,10 +119,11 @@ public final class DeviceScreenCheck {
 
     private static void overflow() {
         DeviceScreenLayout layout = DeviceScreenLayout.of(960, 270);
-        check("a full list fits exactly", Boolean.TRUE, layout.fits(7));
-        check("a full list hides nothing", 0, layout.hidden(7));
-        check("one more device is hidden", 1, layout.hidden(8));
-        check("ten devices leave three hidden", 3, layout.hidden(10));
+        check("a full list fits exactly", Boolean.TRUE, layout.fits(6));
+        check("one more than fits does not", Boolean.FALSE, layout.fits(7));
+        check("a full list hides nothing", 0, layout.hidden(6));
+        check("one more device is hidden", 1, layout.hidden(7));
+        check("ten devices leave three hidden", 3, layout.hidden(9));
         check("an empty list hides nothing", 0, layout.hidden(0));
         check("an empty list fits", Boolean.TRUE, layout.fits(0));
     }
@@ -139,9 +149,13 @@ public final class DeviceScreenCheck {
                     violations++;
                     System.out.println("  columns off screen right at " + width + "x" + height);
                 }
-                if (layout.rowsBottom() > layout.buttonY()) {
+                if (layout.rowsBottom() > layout.sliderY()) {
                     violations++;
-                    System.out.println("  rows reach the buttons at " + width + "x" + height);
+                    System.out.println("  rows reach the sliders at " + width + "x" + height);
+                }
+                if (layout.sliderY() + 20 > layout.buttonY()) {
+                    violations++;
+                    System.out.println("  sliders reach the buttons at " + width + "x" + height);
                 }
                 if (layout.buttonY() + 20 > height) {
                     violations++;

@@ -45,6 +45,15 @@ public final class SplitConfig {
     /** Mouse look multiplier. 1.0 keeps the movement the device reports. */
     public double sensitivity = 1.0D;
 
+    /**
+     * Cursor speed multiplier for the menus, 1.0 being the tuned default.
+     *
+     * <p>Separate from {@link #sensitivity} on purpose: a player who wants a slow camera usually still
+     * wants the pointer to reach a button without dragging across the whole screen, and the other way
+     * round.</p>
+     */
+    public double cursorSensitivity = 1.0D;
+
     /** Wether routing is active. Off keeps the window completely vanilla. */
     public boolean enabled = true;
 
@@ -135,11 +144,8 @@ public final class SplitConfig {
 
     /** Clamps values that a hand-edited file could put out of range. */
     private void normalise() {
-        if (sensitivity < 0.1D) {
-            sensitivity = 0.1D;
-        } else if (sensitivity > 10.0D) {
-            sensitivity = 10.0D;
-        }
+        sensitivity = clamp(sensitivity, MIN_LOOK, MAX_LOOK);
+        cursorSensitivity = clamp(cursorSensitivity, MIN_CURSOR, MAX_CURSOR);
         if (keyboard == null) {
             keyboard = "";
         }
@@ -152,6 +158,22 @@ public final class SplitConfig {
         if (layout == null || layout.isEmpty()) {
             layout = "vertical";
         }
+    }
+
+    /** Lowest and highest look multiplier a hand-edited file can ask for. */
+    public static final double MIN_LOOK = 0.1D;
+    public static final double MAX_LOOK = 3.0D;
+
+    /** Lowest and highest cursor multiplier a hand-edited file can ask for. */
+    public static final double MIN_CURSOR = 0.25D;
+    public static final double MAX_CURSOR = 3.0D;
+
+    /** NaN-safe clamp; a hand-edited {@code null} or garbage number falls back to the default. */
+    private static double clamp(double value, double min, double max) {
+        if (Double.isNaN(value)) {
+            return 1.0D;
+        }
+        return Math.max(min, Math.min(max, value));
     }
 
     /** Compares two device paths; see {@link DevicePath#matches(String, String)}. */

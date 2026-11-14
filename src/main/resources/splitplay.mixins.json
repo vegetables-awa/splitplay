@@ -1,0 +1,24 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "cn.splitplay.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "ContainerScreenAccessor",
+    "ContainerCursorMixin",
+    "GameRendererMixin",
+    "InputConstantsMixin",
+    "KeyboardHandlerAccessor",
+    "KeyboardHandlerMixin",
+    "MinecraftIsWindowActiveMixin",
+    "MinecraftTickMixin",
+    "MouseHandlerAccessor",
+    "MouseHandlerMixin",
+    "ScreenAccessor",
+    "ScreenCursorMixin",
+    "TitleScreenMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "splitplay",
+  "version": "0.1.0",
+  "name": "SplitPlay",
+  "description": "Local two-player split screen: one computer, two game windows, one keyboard and mouse per player.",
+  "authors": [
+    "splitplay contributors"
+  ],
+  "license": "MIT",
+  "icon": "assets/splitplay/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "cn.splitplay.SplitPlay"
+    ]
+  },
+  "mixins": [
+    "splitplay.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "~1.21.1",
+    "java": ">=21"
+  }
+}

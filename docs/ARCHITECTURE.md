@@ -2,6 +2,15 @@
 
 How splitplay is put together, and why each part is where it is.
 
+## Sound
+
+Both windows share `options.txt`, so the vanilla "sound device" option cannot differ between them.
+`LibraryMixin` therefore swaps the device name handed to `Library.init` with the window's own
+`soundDevice` setting, which is what makes two headsets possible. The names come from
+`ALC_ENUMERATE_ALL_EXT` (`ALUtil.getStringList(0, 0x1013)`), the same list the vanilla sound screen
+shows; a stale name falls back to the default device inside Minecraft. Microphones are not handled:
+the game has no voice chat, and Windows has no per-application input routing.
+
 ## Layers
 
 ```
@@ -209,6 +218,7 @@ twice", and guessing there hands one player the other's keyboard.
 | `ContainerCursorMixin` | `AbstractContainerScreen.render` | draw the arrow above item icons |
 | `GameRendererMixin` | `GameRenderer.render` | per-frame movement hand-off, pointer mode |
 | `TitleScreenMixin` | `TitleScreen.init` | add the two buttons |
+| `LibraryMixin` | `Library.init` | open the output device this window was given |
 | `KeyboardHandlerAccessor`, `MouseHandlerAccessor`, `ScreenAccessor`, `ContainerScreenAccessor` | invokers and field accessors | call vanilla internals without reflection |
 
 `build.ps1 -MixinCheck` verifies every target class and member against the game jar, and that every

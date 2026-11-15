@@ -33,6 +33,8 @@ public class DeviceScreen extends Screen {
     private static final double LOOK_MAX = 3.00D;
     private static final double CURSOR_MIN = 0.25D;
     private static final double CURSOR_MAX = 3.00D;
+    /** Room for "Sound: Speakers (USB Audio)" at GUI scale 2. */
+    private static final int SOUND_BUTTON_WIDTH = 200;
 
     private final Screen parent;
     private final List<Button> keyboardButtons = new ArrayList<>();
@@ -44,6 +46,9 @@ public class DeviceScreen extends Screen {
     private String mouse = "";
     private double lookSensitivity = 1.0D;
     private double cursorSensitivity = 1.0D;
+    private String soundDevice = "";
+    private List<String> soundOptions = List.of();
+    private Button soundButton;
     private SensitivitySlider lookSlider;
     private SensitivitySlider cursorSlider;
     /** Raw-input path -> role, for devices another running window already took. */
@@ -58,6 +63,7 @@ public class DeviceScreen extends Screen {
             this.mouse = config.mouse == null ? "" : config.mouse;
             this.lookSensitivity = config.sensitivity;
             this.cursorSensitivity = config.cursorSensitivity;
+            this.soundDevice = config.soundDevice == null ? "" : config.soundDevice;
         }
     }
 
@@ -110,9 +116,46 @@ public class DeviceScreen extends Screen {
         addRenderableWidget(Button.builder(Component.translatable("splitplay.devices.save"), b -> save())
                 .bounds(layout.saveX(), layout.buttonY(), 150, 20)
                 .build());
+        soundOptions = SoundDevices.available();
+        soundButton = Button.builder(soundLabel(), b -> cycleSound())
+                .bounds(this.width - SOUND_BUTTON_WIDTH - 6, 6, SOUND_BUTTON_WIDTH, 20)
+                .build();
+        addRenderableWidget(soundButton);
+
         addRenderableWidget(Button.builder(Component.translatable("splitplay.devices.cancel"), b -> onClose())
                 .bounds(layout.cancelX(), layout.buttonY(), 150, 20)
                 .build());
+    }
+
+    /** "Default", then every device OpenAL reports, with the current choice first. */
+    private List<String> soundChoices() {
+        List<String> choices = new ArrayList<>();
+        choices.add("");
+        for (String name : soundOptions) {
+            if (!choices.contains(name)) {
+                choices.add(name);
+            }
+        }
+        if (!soundDevice.isEmpty() && !choices.contains(soundDevice)) {
+            choices.add(soundDevice);
+        }
+        return choices;
+    }
+
+    private void cycleSound() {
+        List<String> choices = soundChoices();
+        int index = choices.indexOf(soundDevice);
+        soundDevice = choices.get((index + 1) % choices.size());
+        if (soundButton != null) {
+            soundButton.setMessage(soundLabel());
+        }
+    }
+
+    private Component soundLabel() {
+        Component name = soundDevice.isEmpty()
+                ? Component.translatable("splitplay.sound.default")
+                : Component.literal(soundDevice);
+        return Component.translatable("splitplay.sound.label", name);
     }
 
     private void selectKeyboard(RawInputDevice device) {
@@ -187,6 +230,7 @@ public class DeviceScreen extends Screen {
         if (cursorSlider != null) {
             config.cursorSensitivity = cursorSlider.value();
         }
+        config.soundDevice = soundDevice;
         if (config.role == null || config.role.isEmpty()) {
             config.role = SecondInstance.isChild() ? "P2" : "P1";
         }
@@ -194,11 +238,12 @@ public class DeviceScreen extends Screen {
         config.enabled = config.isComplete();
         config.save(SplitPlayClient.configFile());
         SplitPlayClient.reload();
-        SplitPlay.LOGGER.info("splitplay: devices saved, keyboard={} mouse={} look={} cursor={} active={}",
+        SplitPlay.LOGGER.info("splitplay: devices saved, keyboard={} mouse={} look={} cursor={} sound={} active={}",
                 keyboard.isEmpty() ? "<none>" : keyboard,
                 mouse.isEmpty() ? "<none>" : mouse,
                 String.format(Locale.ROOT, "%.2f", config.sensitivity),
                 String.format(Locale.ROOT, "%.2f", config.cursorSensitivity),
+                soundDevice.isEmpty() ? "<system default>" : soundDevice,
                 config.isolatesInput());
         onClose();
     }

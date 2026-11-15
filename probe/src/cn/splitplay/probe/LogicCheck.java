@@ -5,6 +5,7 @@ import cn.splitplay.cursor.PointerPolicy;
 import cn.splitplay.launch.MainWindowPicker;
 import cn.splitplay.launch.SplitLayout;
 import cn.splitplay.util.DevicePath;
+import cn.splitplay.util.SoundDeviceNames;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ public final class LogicCheck {
         mainWindowPick();
         devicePaths();
         pointerPolicy();
+        soundDevices();
         System.out.println("logic: pass=" + pass + " fail=" + fail);
         if (fail > 0) {
             System.exit(1);
@@ -235,6 +237,17 @@ public final class LogicCheck {
         check("empty configured never matches", false, DevicePath.matches("", raw));
         check("empty candidate never matches", false, DevicePath.matches(raw, ""));
         check("null never matches", false, DevicePath.matches(null, raw));
+    }
+
+    private static void soundDevices() {
+        check("no device list", 0, SoundDeviceNames.parse(null).size());
+        check("empty device list", 0, SoundDeviceNames.parse("").size());
+        check("only the terminator", 0, SoundDeviceNames.parse("\0\0").size());
+        check("one device", List.of("Speakers"), SoundDeviceNames.parse("Speakers\0\0"));
+        check("two devices", List.of("A", "B"), SoundDeviceNames.parse("A\0B\0\0"));
+        check("names keep spaces and brackets", List.of("Speakers (USB Audio)"),
+                SoundDeviceNames.parse("Speakers (USB Audio)\0\0"));
+        check("missing terminator still yields the name", List.of("A"), SoundDeviceNames.parse("A"));
     }
 
     private static void check(String name, Object expected, Object actual) {

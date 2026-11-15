@@ -32,6 +32,7 @@ public final class ConfigCheck {
             matching();
             validation(dir);
             roundTrip(dir);
+            sound(dir);
             brokenFiles(dir);
         } finally {
             delete(dir);
@@ -49,6 +50,7 @@ public final class ConfigCheck {
         check("default mouse is empty", "".equals(config.mouse));
         check("default sensitivity is 1", config.sensitivity == 1.0D);
         check("default cursor sensitivity is 1", config.cursorSensitivity == 1.0D);
+        check("default sound device is the system one", "".equals(config.soundDevice));
         check("look and cursor multipliers are separate fields",
                 SplitConfig.MIN_CURSOR != SplitConfig.MIN_LOOK);
         check("default layout is vertical", "vertical".equals(config.layout));
@@ -186,6 +188,20 @@ public final class ConfigCheck {
         } catch (IOException ignored) {
             // Same.
         }
+    }
+
+    private static void sound(Path dir) throws java.io.IOException {
+        Path file = dir.resolve("sound.json");
+        SplitConfig written = new SplitConfig();
+        written.soundDevice = "  Speakers (USB Audio)  ";
+        written.save(file);
+        check("sound device is trimmed when read back",
+                "Speakers (USB Audio)".equals(SplitConfig.load(file).soundDevice));
+
+        SplitConfig nulled = new SplitConfig();
+        nulled.soundDevice = null;
+        nulled.save(file);
+        check("a null sound device reads back empty", "".equals(SplitConfig.load(file).soundDevice));
     }
 
     private static void check(String name, boolean condition) {

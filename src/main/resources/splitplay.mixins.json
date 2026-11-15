@@ -10,6 +10,7 @@
     "InputConstantsMixin",
     "KeyboardHandlerAccessor",
     "KeyboardHandlerMixin",
+    "LibraryMixin",
     "MinecraftIsWindowActiveMixin",
     "MinecraftTickMixin",
     "MouseHandlerAccessor",

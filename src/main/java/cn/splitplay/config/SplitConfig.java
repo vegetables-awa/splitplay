@@ -54,6 +54,12 @@ public final class SplitConfig {
      */
     public double cursorSensitivity = 1.0D;
 
+    /**
+     * OpenAL output device for this window. Empty means "whatever the vanilla sound device option
+     * says", which is the system default unless the player changed it.
+     */
+    public String soundDevice = "";
+
     /** Wether routing is active. Off keeps the window completely vanilla. */
     public boolean enabled = true;
 
@@ -160,6 +166,10 @@ public final class SplitConfig {
         if (keyboard == null) {
             keyboard = "";
         }
+        if (soundDevice == null) {
+            soundDevice = "";
+        }
+        soundDevice = soundDevice.trim();
         if (mouse == null) {
             mouse = "";
         }

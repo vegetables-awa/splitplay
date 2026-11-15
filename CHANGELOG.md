@@ -5,6 +5,20 @@ the newest entry here.
 
 ## Unreleased
 
+### One output device per window
+
+- The device screen now has a sound picker: each window can open its own OpenAL output device, so one
+  player hears the speakers while the other hears a headset. It is stored as `soundDevice` in the
+  window's own settings file and applied by swapping the argument of `Library.init`, because the
+  vanilla "sound device" option lives in `options.txt`, which both windows share.
+- The list comes from `ALC_ENUMERATE_ALL_EXT` (the same names the vanilla sound screen shows) with a
+  fallback to the plain device specifier. A name that no longer exists falls back to the default
+  device instead of killing the sound engine, which is what Minecraft already does.
+- Verified on 1.21.1: with the setting present the log shows `splitplay: opening sound device 'X'
+  instead of 'null'` followed by `OpenAL initialized on device X`.
+- No microphone support: Minecraft has no voice chat, and Windows has no per-application input
+  routing, so a per-player microphone needs a separate voice application.
+
 ### One jar for 1.21.1 up to 1.21.5
 
 - The mod no longer depends on `Screen.wrapScreenError`, which was removed in 1.21.2. The screen calls

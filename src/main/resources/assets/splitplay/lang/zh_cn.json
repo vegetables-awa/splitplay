@@ -17,5 +17,7 @@
   "splitplay.devices.in_use": " - 已被 %s 占用",
   "splitplay.devices.virtual": "（虚拟设备）",
   "splitplay.sensitivity.look": "视角灵敏度：%s",
-  "splitplay.sensitivity.cursor": "光标速度：%s"
+  "splitplay.sensitivity.cursor": "光标速度：%s",
+  "splitplay.sound.label": "声音输出：%s",
+  "splitplay.sound.default": "跟随系统"
 }

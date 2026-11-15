@@ -17,5 +17,7 @@
   "splitplay.devices.in_use": " - in use by %s",
   "splitplay.devices.virtual": " (virtual)",
   "splitplay.sensitivity.look": "Look sensitivity: %s",
-  "splitplay.sensitivity.cursor": "Cursor speed: %s"
+  "splitplay.sensitivity.cursor": "Cursor speed: %s",
+  "splitplay.sound.label": "Sound: %s",
+  "splitplay.sound.default": "Default"
 }

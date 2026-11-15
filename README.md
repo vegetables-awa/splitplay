@@ -23,6 +23,8 @@ Put `splitplay-0.1.0.jar` into the `mods` folder of the instance.
 - Settings per window: `config/splitplay.json` for the first window, `config/splitplay-p2.json` for the
   second, so each player can use their own devices and their own sensitivity.
 - The device screen has two sliders, for camera sensitivity and cursor speed.
+- Sound per window: the top right of the device screen picks an output device for this window, so the
+  two players can use two headsets. "Default" keeps whatever the game is already using.
 
 Supports Minecraft 1.21.1 to 1.21.5 with the same jar, requires Fabric Loader 0.16+.
 

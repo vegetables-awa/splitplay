@@ -54,6 +54,12 @@ public final class SplitPlayClient {
     private SplitPlayClient() {
     }
 
+    /** Output device this window asked for, or an empty string for the vanilla choice. */
+    public static String configuredSoundDevice() {
+        SplitConfig current = config;
+        return current == null || current.soundDevice == null ? "" : current.soundDevice;
+    }
+
     public static SplitConfig config() {
         return config;
     }
@@ -189,6 +195,9 @@ public final class SplitPlayClient {
         SplitPlay.LOGGER.info("splitplay config {}: role='{}' keyboard={} mouse={} enabled={} look={} cursor={}",
                 configFile, config.role, describe(config.keyboard), describe(config.mouse),
                 config.enabled, config.sensitivity, config.cursorSensitivity);
+        if (!configuredSoundDevice().isEmpty()) {
+            SplitPlay.LOGGER.info("splitplay: sound output for this window is '{}'", configuredSoundDevice());
+        }
 
         logDevices("startup");
 

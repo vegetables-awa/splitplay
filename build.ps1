@@ -142,6 +142,7 @@ if ($LogicCheck) {
         (Join-Path $root 'src\main\java\cn\splitplay\launch\MainWindowPicker.java'),
         (Join-Path $root 'src\main\java\cn\splitplay\launch\SplitLayout.java'),
         (Join-Path $root 'src\main\java\cn\splitplay\util\DevicePath.java'),
+        (Join-Path $root 'src\main\java\cn\splitplay\util\SoundDeviceNames.java'),
         (Join-Path $root 'probe\src\cn\splitplay\probe\LogicCheck.java')
     ) -Dest $dest -ArgTag 'logic' -ClassPath @()
     & $java -cp $dest cn.splitplay.probe.LogicCheck

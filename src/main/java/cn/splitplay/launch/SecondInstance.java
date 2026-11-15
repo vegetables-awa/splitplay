@@ -36,7 +36,7 @@ public final class SecondInstance {
     /** The second window's settings file, inside the shared config directory. */
     public static final String CHILD_CONFIG_NAME = "splitplay-p2.json";
 
-    /** Working directory of the second window: only its log file lives here. */
+    /** Working directory of the second window. Must stay the game directory, see start(). */
     public static final String CHILD_CWD_DIR = "splitplay-p2-logs";
 
     private static final String DEFAULT_SECOND_NAME = "P2";
@@ -70,16 +70,16 @@ public final class SecondInstance {
                 gameDir, CHILD_CONFIG_NAME);
 
         ProcessBuilder builder = new ProcessBuilder(command);
-        // Same game directory on purpose: the second window has to be the same mod pack. The working
-        // directory is the exception -- Minecraft writes logs/latest.log relative to it, and two
-        // processes writing one file truncate and interleave each other's log.
-        Path childCwd = gameDir.resolve(CHILD_CWD_DIR);
-        Files.createDirectories(childCwd.resolve("logs"));
-        builder.directory(childCwd.toFile());
+        // Same working directory as well, and it has to be: plenty of mods resolve paths against the
+        // process working directory, not against --gameDir. FancyMenu, for one, reads its layouts from
+        // ./config/fancymenu/customization, so running the second window from another directory gave
+        // it an empty config and the window came up with a vanilla title screen. The price is that
+        // both processes write logs/latest.log; the second one can truncate the first one's log.
+        builder.directory(gameDir.toFile());
         builder.environment().put(CHILD_ENV, "1");
         // Never a pipe: a piped stdout blocks the child the moment nobody drains it, which looks
         // exactly like a frozen second window. Files are drained by the disk.
-        Path logDir = childCwd.resolve("logs");
+        Path logDir = gameDir.resolve("logs");
         Files.createDirectories(logDir);
         builder.redirectOutput(ProcessBuilder.Redirect.appendTo(
                 logDir.resolve("splitplay-p2-stdout.txt").toFile()));

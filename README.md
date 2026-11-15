@@ -427,9 +427,11 @@ configuration, resource packs or menu layout -- instantly recognisable as "not t
 Two things are kept apart so the windows do not fight over them:
 
 - **settings**: the child reads `config/splitplay-p2.json` instead of `config/splitplay.json`;
-- **logs**: the child's working directory is `splitplay-p2-logs/`, because Minecraft writes
-  `logs/latest.log` relative to the working directory and two processes appending to one file
-  truncate and garble each other's log.
+- **nothing else**: the working directory stays the game directory too. Many mods resolve paths
+  against it rather than against `--gameDir` (FancyMenu reads `./config/fancymenu/customization`,
+  Cobblemon writes `./showdown`), so a window started from another directory comes up with an
+  empty config and a vanilla title screen. The price is that both processes write
+  `logs/latest.log`, and the second one can truncate the first one's log.
 
 The arguments are read with `CommandLineToArgvW` rather than by splitting a string: a pack whose
 version is called `Cobblemon Official Modpack [Fabric]` arrives as five arguments when the spaces are

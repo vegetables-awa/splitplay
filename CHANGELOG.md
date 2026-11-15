@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+- The second window keeps the game directory as its working directory; starting it elsewhere
+  left mods like FancyMenu with an empty config, so its title screen came up vanilla.
 
 - The second window now runs in the same game directory as the first, so it is the same mod pack
   (same configs, resource packs, menu layout) instead of a copy of the mods; it keeps its settings in

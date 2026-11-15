@@ -1,11 +1,14 @@
 package cn.splitplay.input;
 
+import cn.splitplay.SplitPlay;
 import cn.splitplay.SplitPlayClient;
 import cn.splitplay.cursor.VirtualCursor;
 import cn.splitplay.mixin.MouseHandlerAccessor;
 import com.mojang.blaze3d.Blaze3D;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+
+import java.util.Set;
 
 /**
  * Feeds the virtual cursor into a screen, the way the reference implementation does.
@@ -17,6 +20,8 @@ import net.minecraft.client.gui.screens.Screen;
  * real click at that spot, it does here.</p>
  */
 public final class ScreenMouse {
+
+    private static final Set<String> REPORTED = java.util.concurrent.ConcurrentHashMap.newKeySet();
 
     /** Raw units in one wheel notch, as reported by Windows. */
     private static final double WHEEL_DELTA = 120.0D;
@@ -65,13 +70,11 @@ public final class ScreenMouse {
         }
         int active = VirtualCursor.activeButton();
         String name = screen.getClass().getCanonicalName();
-        Screen.wrapScreenError(() -> screen.mouseMoved(guiX, guiY), "mouseMoved event handler", name);
+        safely(() -> screen.mouseMoved(guiX, guiY), "mouseMoved", name);
         if (active != -1) {
             double dragX = guiX - previousGuiX;
             double dragY = guiY - previousGuiY;
-            Screen.wrapScreenError(
-                    () -> screen.mouseDragged(guiX, guiY, active, dragX, dragY),
-                    "mouseDragged event handler", name);
+            safely(() -> screen.mouseDragged(guiX, guiY, active, dragX, dragY), "mouseDragged", name);
         }
         screen.afterMouseMove();
     }
@@ -90,11 +93,9 @@ public final class ScreenMouse {
             accessor.splitplay$setActiveButton(button);
             accessor.splitplay$setMousePressedTime(Blaze3D.getTime());
             screen.afterMouseAction();
-            Screen.wrapScreenError(() -> screen.mouseClicked(guiX, guiY, button),
-                    "mouseClicked event handler", name);
+            safely(() -> screen.mouseClicked(guiX, guiY, button), "mouseClicked", name);
         } else {
-            Screen.wrapScreenError(() -> screen.mouseReleased(guiX, guiY, button),
-                    "mouseReleased event handler", name);
+            safely(() -> screen.mouseReleased(guiX, guiY, button), "mouseReleased", name);
             if (VirtualCursor.activeButton() == button) {
                 VirtualCursor.setActiveButton(-1);
                 accessor.splitplay$setActiveButton(-1);
@@ -160,6 +161,24 @@ public final class ScreenMouse {
             return false;
         } catch (RuntimeException ignored) {
             return false;
+        }
+    }
+
+    /**
+     * Runs one screen callback and logs instead of propagating.
+     *
+     * <p>Minecraft used to wrap these calls in {@code Screen.wrapScreenError}, which was removed in 1.21.2.
+     * The behaviour we want is the same on every version: a broken screen callback must not take the game
+     * down, and a bugreport-worthy failure has to leave a line in the log.</p>
+     */
+    private static void safely(Runnable action, String what, String screenName) {
+        try {
+            action.run();
+        } catch (Throwable error) {
+            if (REPORTED.add(what + ' ' + screenName)) {
+                SplitPlay.LOGGER.error("splitplay: {} failed on {}: {}", what, screenName, error.toString());
+                SplitPlay.LOGGER.debug("splitplay: {}", what, error);
+            }
         }
     }
 }

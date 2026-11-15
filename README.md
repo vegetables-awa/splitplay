@@ -1,6 +1,6 @@
 # splitplay
 
-Local two-player split screen for Minecraft 1.21.1 (Fabric). One client, two windows, independent
+Local two-player split screen for Minecraft 1.21.1 to 1.21.5 (Fabric). One client, two windows, independent
 input.
 
 Press `F7` on the title screen: the second window opens in the bottom half of the screen and the taskbar
@@ -24,7 +24,7 @@ Put `splitplay-0.1.0.jar` into the `mods` folder of the instance.
   second, so each player can use their own devices and their own sensitivity.
 - The device screen has two sliders, for camera sensitivity and cursor speed.
 
-Supports Minecraft 1.21.1, requires Fabric Loader 0.16+.
+Supports Minecraft 1.21.1 to 1.21.5 with the same jar, requires Fabric Loader 0.16+.
 
 ## Build
 

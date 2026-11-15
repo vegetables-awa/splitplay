@@ -7,6 +7,7 @@ What was actually tested, what is expected to work, and what cannot work.
 | Environment | Mods | Result |
 |---|---|---|
 | **Cobblemon Official Modpack [Fabric]** (1.21.1, loader 0.20.1) | 191 (incl. nested) | both windows load the pack, FancyMenu draws its custom title screen in both, the device picker and virtual cursor work, split screen and taskbar behave |
+| 1.21.5 + Fabric 0.20.1 (same jar, seen 2026-11-15) | 1 (splitplay) | mod loads, mixins apply, raw input attaches, title screen buttons and virtual cursor work; hand-verified with a plain 1.21.5 + Fabric API install |
 | clean 1.21.1 + Fabric 0.20.1 | 1 (splitplay) | reference environment for every feature |
 | 1.21.1 + Fabric + Sodium/Lithium/FerriteCore/ImmediatelyFast/EntityCulling/ModernFix | 8 | no interaction observed; the cursor is drawn through `GuiGraphics`, which the rendering mods do not touch |
 | 1.21.1 + NeoForge 21.1.264 (the mod's earlier life) | - | not supported any more: the published jar is a Fabric mod |

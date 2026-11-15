@@ -5,6 +5,19 @@ the newest entry here.
 
 ## Unreleased
 
+### One jar for 1.21.1 up to 1.21.5
+
+- The mod no longer depends on `Screen.wrapScreenError`, which was removed in 1.21.2. The screen calls
+  are now wrapped by a small helper of our own, so the same jar runs on 1.21.1, 1.21.2, 1.21.3, 1.21.4
+  and 1.21.5. `fabric.mod.json` asks for `>=1.21.1 <1.21.6`.
+- Verified by launching 1.21.1 (Fabric 0.16.9) and 1.21.5 (Fabric 0.20.1) with the same file: the mixin
+  targets resolve on both, raw input attaches to the game window, the title screen gets its buttons and
+  the virtual cursor draws. The release jar is built against 1.21.1, the oldest supported version, so
+  every member it references exists on the newer ones too.
+- 1.21.6 and later move the GUI rendering and the input classes around (`GuiGraphics.pose()` returns a
+  different type, `MouseHandler.onPress` disappears, key events become objects). They need a separate
+  port, not just a version range.
+
 ### The second window is the same install now
 
 - The second window runs in the **same instance directory** with the **same working directory** as the

@@ -164,6 +164,7 @@ if ($ScreenCheck) {
     $dest = Join-Path $OutDir 'screen-classes'
     Compile -Files @(
         (Join-Path $root 'src\main\java\cn\splitplay\client\DeviceScreenLayout.java'),
+        (Join-Path $root 'src\main\java\cn\splitplay\client\TitleButtonLayout.java'),
         (Join-Path $root 'probe\src\cn\splitplay\probe\DeviceScreenCheck.java')
     ) -Dest $dest -ArgTag 'screen' -ClassPath @()
     & $java -cp $dest cn.splitplay.probe.DeviceScreenCheck

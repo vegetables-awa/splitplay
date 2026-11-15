@@ -1,6 +1,7 @@
 package cn.splitplay.probe;
 
 import cn.splitplay.client.DeviceScreenLayout;
+import cn.splitplay.client.TitleButtonLayout;
 
 /**
  * Offline check for where the device picker puts its rows and buttons.
@@ -26,6 +27,7 @@ public final class DeviceScreenCheck {
         rowHits();
         overflow();
         invariants();
+        titleButtons();
         System.out.println("devicescreen: pass=" + pass + " fail=" + fail);
         if (fail > 0) {
             System.exit(1);
@@ -168,6 +170,55 @@ public final class DeviceScreenCheck {
             }
         }
         check("layout invariants hold at 60 window sizes", 0, violations);
+    }
+
+    /** The two buttons on the title screen follow the GUI area and never leave it. */
+    private static void titleButtons() {
+        TitleButtonLayout.Rect two = TitleButtonLayout.twoPlayers(960, 270);
+        TitleButtonLayout.Rect devices = TitleButtonLayout.devices(960, 270);
+        check("title buttons sit above the bottom edge", 244, two.y());
+        check("title buttons have the same row", two.y(), devices.y());
+        check("two players button is at the left margin", 6, two.x());
+        check("devices button follows the first one", 120, devices.x());
+        check("devices button is 90 wide", 90, devices.width());
+
+        // 320x180 in GUI units: the pair still fits with room to spare.
+        check("devices fits at 320 wide", 120, TitleButtonLayout.devices(320, 180).x());
+        // 213 wide (a 640x360 window at GUI scale 3): the pair barely fits, no clipping.
+        check("devices pulled left at 213 wide", 117, TitleButtonLayout.devices(213, 120).x());
+        check("devices stays inside at 213 wide", true, TitleButtonLayout.devices(213, 120).right() <= 213);
+        // 100 wide: cannot fit both, the devices button still stays on screen.
+        check("devices stays inside at 100 wide", true, TitleButtonLayout.devices(100, 120).right() <= 100);
+        check("devices does not go past the left margin", 6, TitleButtonLayout.devices(100, 120).x());
+        // Very short window: the row does not go above the top edge either.
+        check("row keeps its margin on a 60 high window", 34, TitleButtonLayout.twoPlayers(320, 60).y());
+        check("row clamped on a 30 high window", 4, TitleButtonLayout.twoPlayers(320, 30).y());
+        check("row stays inside a 20 high window", true, TitleButtonLayout.twoPlayers(320, 20).bottom() <= 20);
+
+        int violations = 0;
+        for (int width = 60; width <= 1000; width += 20) {
+            for (int height = 20; height <= 600; height += 20) {
+                for (TitleButtonLayout.Rect rect : new TitleButtonLayout.Rect[]{
+                        TitleButtonLayout.twoPlayers(width, height),
+                        TitleButtonLayout.devices(width, height)}) {
+                    if (rect.x() < 0 || rect.y() < 0) {
+                        violations++;
+                        System.out.println("  button above the origin at " + width + "x" + height);
+                    }
+                    if (rect.bottom() > height) {
+                        violations++;
+                        System.out.println("  button below the window at " + width + "x" + height);
+                    }
+                    if (width >= TitleButtonLayout.TWO_PLAYERS_WIDTH + TitleButtonLayout.DEVICES_WIDTH
+                            + 2 * TitleButtonLayout.MARGIN + TitleButtonLayout.GAP
+                            && rect.right() > width) {
+                        violations++;
+                        System.out.println("  button off the right edge at " + width + "x" + height);
+                    }
+                }
+            }
+        }
+        check("title button invariants hold at 47x30 window sizes", 0, violations);
     }
 
     private static void check(String what, Object expected, Object actual) {

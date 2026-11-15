@@ -24,8 +24,8 @@ import java.util.Set;
  */
 public final class TitleButtons {
 
-    private static final int DEVICES_WIDTH = 90;
-    private static final int TWO_PLAYERS_WIDTH = 110;
+    private static final int DEVICES_WIDTH = TitleButtonLayout.DEVICES_WIDTH;
+    private static final int TWO_PLAYERS_WIDTH = TitleButtonLayout.TWO_PLAYERS_WIDTH;
 
     private static final Set<Screen> HANDLED = Collections.newSetFromMap(new IdentityHashMap<>());
     private static final Set<Screen> REPORTED = Collections.newSetFromMap(new IdentityHashMap<>());
@@ -50,8 +50,8 @@ public final class TitleButtons {
         if (!(minecraft.screen instanceof TitleScreen title)) {
             return;
         }
-        boolean hasTwoPlayers = hasButton(title, TWO_PLAYERS_WIDTH, 6);
-        boolean hasDevices = hasButton(title, DEVICES_WIDTH, 120);
+        boolean hasTwoPlayers = hasButton(title, TWO_PLAYERS_WIDTH);
+        boolean hasDevices = hasButton(title, DEVICES_WIDTH);
         if (hasTwoPlayers && hasDevices) {
             HANDLED.add(title);
             return;
@@ -64,25 +64,28 @@ public final class TitleButtons {
         }
         ScreenAccessor accessor = (ScreenAccessor) (Object) title;
         if (!hasDevices) {
+            TitleButtonLayout.Rect rect = TitleButtonLayout.devices(title.width, title.height);
             accessor.splitplay$addRenderableWidget(Button
                     .builder(Component.translatable("splitplay.button.devices"),
                             button -> minecraft.setScreen(new DeviceScreen(title)))
-                    .bounds(120, title.height - 26, DEVICES_WIDTH, 20)
+                    .bounds(rect.x(), rect.y(), rect.width(), rect.height())
                     .build());
         }
         if (!hasTwoPlayers && !SecondInstance.isChild()) {
+            TitleButtonLayout.Rect rect = TitleButtonLayout.twoPlayers(title.width, title.height);
             accessor.splitplay$addRenderableWidget(Button
                     .builder(Component.translatable("splitplay.button.two_players"),
                             button -> SplitLauncher.startTwoPlayerMode())
-                    .bounds(6, title.height - 26, TWO_PLAYERS_WIDTH, 20)
+                    .bounds(rect.x(), rect.y(), rect.width(), rect.height())
                     .build());
         }
         HANDLED.add(title);
     }
 
-    private static boolean hasButton(Screen screen, int width, int x) {
+    /** Recognised by width: the two buttons are 110 and 90 wide, no vanilla title button is either. */
+    private static boolean hasButton(Screen screen, int width) {
         for (var child : screen.children()) {
-            if (child instanceof Button button && button.getWidth() == width && button.getX() == x) {
+            if (child instanceof Button button && button.getWidth() == width) {
                 return true;
             }
         }

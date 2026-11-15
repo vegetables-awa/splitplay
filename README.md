@@ -13,6 +13,9 @@ Put `splitplay-0.1.0.jar` into the `mods` folder of the instance.
 
 ## Features
 
+- Starting: the title screen has two buttons in its bottom left corner, "Two players" (same as `F7`)
+  and "Devices" (same as `F8`). Mod packs that customise the title screen, FancyMenu for instance, may
+  cover the buttons; use the shortcuts there.
 - Split screen: `F7` opens the second window, both windows become borderless and stacked, the taskbar
   hides. Close either window and the taskbar comes back.
 - Independent input: press `F8` in each window to pick that player's keyboard and mouse. Devices taken
@@ -21,7 +24,7 @@ Put `splitplay-0.1.0.jar` into the `mods` folder of the instance.
   second, so each player can use their own devices and their own sensitivity.
 - The device screen has two sliders, for camera sensitivity and cursor speed.
 
-Requires Fabric Loader 0.16+.
+Supports Minecraft 1.21.1, requires Fabric Loader 0.16+.
 
 ## Build
 

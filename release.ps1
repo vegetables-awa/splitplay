@@ -74,11 +74,17 @@ try {
         Remove-Item -Force
     Copy-Item $jar.FullName (Join-Path $dist $jar.Name) -Force
     # A release without its documents is not a release; fail loudly instead of shipping a bare jar.
-    foreach ($doc in @('LICENSE', 'README.md', 'CHANGELOG.md', 'INSTALL.txt')) {
+    foreach ($doc in @('LICENSE', 'README.md', 'README.zh-CN.md', 'CHANGELOG.md', 'INSTALL.txt')) {
         $source = Join-Path $root $doc
         if (-not (Test-Path $source)) { throw "missing release document: $doc" }
         Copy-Item $source $dist -Force
     }
+    # docs/ ships with the zip so a downloaded release is self-contained.
+    $docs = Join-Path $root 'docs'
+    if (-not (Test-Path $docs)) { throw 'missing release documents: docs/' }
+    $distDocs = Join-Path $dist 'docs'
+    if (Test-Path $distDocs) { Remove-Item $distDocs -Recurse -Force }
+    Copy-Item $docs $distDocs -Recurse -Force
 
     $zip = Join-Path $dist "splitplay-$version.zip"
     Compress-Archive -Path (Join-Path $dist '*') -DestinationPath $zip -Force

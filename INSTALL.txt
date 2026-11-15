@@ -4,12 +4,17 @@ splitplay - install
 1. Minecraft 1.21.1, Fabric Loader 0.16 or newer, Java 21.
 2. Put splitplay-0.1.0.jar into the mods folder of one instance.
    The second window gets its own copy automatically; do not prepare it by hand.
-3. Start the game and press "Two players" on the title screen.
+3. Start the game and press F7 (or click "Two players" on the title screen).
    The second window appears in the bottom half of the screen and the taskbar is hidden.
-4. In each window press "Devices" and pick that player's keyboard and mouse.
+4. In each window press F8 (or click "Devices") and pick that player's keyboard and mouse.
    Devices already used by the other window are greyed out.
 5. Open a world in one window, choose "Open to LAN", then join 127.0.0.1:<port> in the other.
    Automatic LAN hosting is not implemented yet.
+
+Some packs (FancyMenu and friends) replace the title screen and never draw our buttons; the keys
+above always work. Both windows run in this instance's directory, so the pack's own menus, configs
+and resource packs are identical in the second window - only the settings file differs
+(config/splitplay.json for the first window, config/splitplay-p2.json for the second).
 
 Two keyboards and two mice are required. Windows only.
 
@@ -18,7 +23,7 @@ the desktop and cannot click whatever is behind the window. Switching to another
 it immediately, which is what you want - the lock belongs to whichever window is in front.
 
 If you move a keyboard or mouse to another USB port, its device path changes and the window falls
-back to normal input (there is a warning in the log). Press "Devices" again in that window; it takes
+back to normal input (there is a warning in the log). Press F8 again in that window; it takes
 one click.
 
 If the taskbar is ever left hidden (for example after the game was killed), it is restored the

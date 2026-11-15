@@ -7,3 +7,5 @@ logs/
 .idea/
 .gradle/
 _probe-run*.txt
+_*.png
+_*.txt

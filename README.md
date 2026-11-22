@@ -1,5 +1,7 @@
 # splitplay
 
+**English** | [简体中文](README.zh-CN.md)
+
 Local two-player split screen for Minecraft 1.21.1 to 1.21.5 (Fabric). One client, two windows, independent
 input.
 

@@ -28,27 +28,28 @@ the one a user needs) and `-sources.jar`.
 ```
 
 `build.ps1` is deliberately plain `javac` with an argument file: it compiles the pure-JVM parts
-(`rawin/`, `input/HeldInput`, `input/KeyMap`, `launch/CommandLine`, `config/`, `util/`, ...) and the
+(`rawin/`, `input/HeldInput`, `input/KeyMap`, `launch/CommandLine`, `launch/MainWindowPicker`,
+`launch/SplitLayout`, `cursor/CursorGeometry`, `cursor/PointerPolicy`, `config/`, `util/`, ...) and the
 suite that is asked for, with no Gradle, no Minecraft and no window. That is what makes the checks fast
 (1-3 s each) and usable from `release.ps1`.
 
 ## The checks
 
-`release.ps1` runs every suite and refuses to package if any of them fails. Current totals: **498
+`release.ps1` runs every suite and refuses to package if any of them fails. Current totals: **525
 assertions**.
 
 | Suite | Assertions | What it proves |
 |---|---|---|
-| `-LogicCheck` | 84 | cursor geometry and clamping, window picking, pointer policy table, `SplitLayout` tiling (both window geometries, odd resolutions, degenerate sizes) |
+| `-LogicCheck` | 91 | cursor geometry and clamping, window picking, pointer policy table, `SplitLayout` tiling (both window geometries, odd resolutions, degenerate sizes) |
 | `-KeyMapCheck` | 33 | Windows VK -> GLFW key translation for every key a player uses (`Esc`, `F1..F12`, arrows, modifiers, numpad, punctuation) |
 | `-CommandLineCheck` | 26 | argument rewriting, `--gameDir` sharing, offline UUID (fixed to `89a1a08d-...` for `SP1`), empty-quote tokenising |
 | `-ClaimCheck` | 31 | device claim files: write/read/remove, dead pids, own pid, path normalisation, broken files |
-| `-ConfigCheck` | 58 | defaults, clamping (`sensitivity`, `cursorSensitivity`, `layout`), round trip, every kind of broken json |
+| `-ConfigCheck` | 61 | defaults, clamping (`sensitivity`, `cursorSensitivity`, `layout`), `soundDevice` defaulting and trimming, round trip, every kind of broken json |
 | `-MirrorCheck` | 30 | mod jar mirroring rules (copy, keep, prune, no subdirectories, no non-jars) |
-| `-JarCheck` | 36 | the built jar: metadata, `LICENSE`, icon, language files and their key parity, no readable Mojang names, no leftovers of the old mod |
-| `-MixinCheck` | 44 | every mixin target class and member exists in the game jar, and every mixin is registered |
+| `-JarCheck` | 37 | the built jar: metadata, `LICENSE`, icon, language files and their key parity, no readable Mojang names, no leftovers of the old mod |
+| `-MixinCheck` | 46 | every mixin target class and member exists in the game jar, and every mixin is registered |
 | `-HeldCheck` | 44 | press/repeat/release bookkeeping, double clicks, modifier calculation, release-all |
-| `-ScreenCheck` | 55 | device picker geometry: rows, overflow, hit testing, sliders, 60 window sizes with invariants |
+| `-ScreenCheck` | 69 | device picker geometry and title buttons: rows, overflow, sliders, hit testing, 77 window sizes with invariants |
 | `-QueueCheck` | 57 | event queue: movement coalescing, overflow policy, capacity clamping, two-thread stress test |
 
 Some checks need jars from a real installation (gson, slf4j, Minecraft, LWJGL). Point them somewhere

@@ -7,7 +7,8 @@ What was actually tested, what is expected to work, and what cannot work.
 | Environment | Mods | Result |
 |---|---|---|
 | **Cobblemon Official Modpack [Fabric]** (1.21.1, loader 0.20.1) | 191 (incl. nested) | both windows load the pack, FancyMenu draws its custom title screen in both, the device picker and virtual cursor work, split screen and taskbar behave |
-| 1.21.5 + Fabric 0.20.1 (same jar, seen 2026-11-15) | 1 (splitplay) | mod loads, mixins apply, raw input attaches, title screen buttons and virtual cursor work; hand-verified with a plain 1.21.5 + Fabric API install |
+| 1.21.5 + Fabric 0.20.1 (same jar, seen 2026-11-15) | 1 (splitplay) | mod loads, mixins apply, raw input attaches, title screen buttons and virtual cursor work; hand-verified with a plain 1.21.5 + Fabric API install. One jar covers 1.21.1 through 1.21.5 |
+| 1.21.1 + Fabric, sound split across two output devices | 1 (splitplay) | each window opens the device named in its own config (`OpenAL initialized on device <name>`); a stale name falls back to the default device |
 | clean 1.21.1 + Fabric 0.20.1 | 1 (splitplay) | reference environment for every feature |
 | 1.21.1 + Fabric + Sodium/Lithium/FerriteCore/ImmediatelyFast/EntityCulling/ModernFix | 8 | no interaction observed; the cursor is drawn through `GuiGraphics`, which the rendering mods do not touch |
 | 1.21.1 + NeoForge 21.1.264 (the mod's earlier life) | - | not supported any more: the published jar is a Fabric mod |
@@ -49,6 +50,8 @@ two keyboards (VID_1C4F, VID_2A7A) and two mice (VID_10C4, VID_30FA).
 | one machine | there is no networking between windows |
 | automatic LAN | not implemented; open the world to LAN and join `127.0.0.1:<port>` |
 | IME (Chinese/Japanese/Korean) in both windows | the IME is a system-wide input method, not a device |
+| microphones per window | Minecraft has no voice chat, and Windows has no per-application input routing |
+| more than one output device per window | one OpenAL device per client; pick speakers or a headset, not both |
 | gamepads | not implemented |
 | a second *account* | offline names are used (`P2`), a LAN world does not check them |
 | macOS / Linux | none of the input layer exists there |
@@ -70,7 +73,9 @@ comfortable.
 4. in each window press `F8` and assign a device pair (the other window's devices are greyed out);
 5. check the pointer: in front it is hidden and clipped, behind another application it is released;
 6. open a world, walk, look around, open the inventory, type in chat;
-7. optionally: `-JarCheck` against the pack's other jars only inspects splitplay's own jar, so it is
+7. optional sound check: in one window's device screen pick a different output device, save, `F3 + T`,
+   and confirm the log says `splitplay: opening sound device '<that name>'`;
+8. optionally: `-JarCheck` against the pack's other jars only inspects splitplay's own jar, so it is
    not a pack validator.
 
 If something fails, the useful evidence is: the `splitplay:` lines from `logs/latest.log`, both

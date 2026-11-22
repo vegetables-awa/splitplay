@@ -41,6 +41,8 @@ file in between, or read `splitplay-p2-stdout.txt`.
 | `splitplay: both windows arranged (N pass(es), 0 re-discovery), taskbar hidden` | split screen applied |
 | `splitplay: re-discovered the game windows after a stale handle` | a pack recreated its window; recovered |
 | `splitplay: devices saved, keyboard=... mouse=... active=true` | the device picker wrote the settings |
+| `splitplay: sound output for this window is '<name>'` | the window was told to use that output device (empty = the game's own choice) |
+| `splitplay: opening sound device '<a>' instead of '<b>'` | `LibraryMixin` swapped the device while the sound engine was coming up |
 | `splitplay: window 'P1' (pid N) already uses <device>` | cross-window claim, the other window owns it |
 | `splitplay: taskbar was left hidden (marker ...), restoring it` | the taskbar was left hidden by an earlier kill; self-healed |
 
@@ -114,6 +116,18 @@ Remove-Item '<game root>\splitplay-devices\*.json'
 Both windows picked the same keyboard. The picker greys out claimed devices, but the claim is only
 written when you press Save. Pick one device per window and save both.
 
+### Both windows play through the same speakers
+
+Neither window has a sound device set, so both follow `options.txt`. Press `F8` in one of them and
+click the button in the top right until it names that player's headset, save, then `F3 + T`.
+
+### The sound device list is empty or the game goes silent
+
+An empty list means `ALC_ENUMERATE_ALL_EXT` is missing (unusual, comes with OpenAL Soft). A name that
+no longer exists is handled inside Minecraft: `Library.openDeviceOrFallback` quietly falls back to the
+default device, so a stale name costs you the split, not the sound. Check
+`splitplay: opening sound device '<a>' instead of '<b>'` to see what was actually requested.
+
 ### Chinese text does not type in one window
 
 Expected: the character path is per device, the Windows IME is not. Letters and digits work in both
@@ -132,4 +146,5 @@ it falls behind rather than replaying stale input. Look for
 3. `config/splitplay.json` and `splitplay-p2.json`: different devices, `enabled: true`.
 4. `splitplay-devices\*.json`: one file per window, pids alive.
 5. Pointer stuck? release the clip (above). Taskbar gone? restart the game.
-6. Still stuck: send the `splitplay:` lines from `latest.log` (they are few) plus the two config files.
+6. No sound in one window? Check `soundDevice` in that window's config and press `F3 + T`.
+7. Still stuck: send the `splitplay:` lines from `latest.log` (they are few) plus the two config files.

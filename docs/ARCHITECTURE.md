@@ -11,6 +11,9 @@ Both windows share `options.txt`, so the vanilla "sound device" option cannot di
 shows; a stale name falls back to the default device inside Minecraft. Microphones are not handled:
 the game has no voice chat, and Windows has no per-application input routing.
 
+The swap happens while `Library.init` runs, so a change takes effect on the next resource reload
+(`F3 + T`) or on the next start of that window -- nothing else has to be restarted.
+
 ## Layers
 
 ```
@@ -34,12 +37,13 @@ vanilla   KeyboardHandler.keyPress / charTyped
           Screen.mouseMoved / mouseClicked / mouseReleased / mouseDragged / mouseScrolled
 
 cursor/   VirtualCursor     pointer policy, clip, hide, drawn arrow (z = 800)
-client/   DeviceScreen, DeviceScreenLayout, TitleButtons, KeyShortcuts, DeviceClaims
+client/   DeviceScreen, DeviceScreenLayout, TitleButtons, KeyShortcuts, DeviceClaims,
+          SoundDevices                                               
 config/   SplitConfig       config/splitplay.json (P1) and config/splitplay-p2.json (P2)
 launch/   SecondInstance, SplitLauncher, CommandLine, NativeCommandLine, NativeWindows,
           SplitLayout, MainWindowPicker, ModMirror
-util/     DevicePath, ClaimStore
-mixin/    13 mixins (see the table at the end)
+util/     DevicePath, ClaimStore, SoundDeviceNames
+mixin/    14 mixins (see the table at the end)
 ```
 
 ## Why raw input at all
@@ -198,9 +202,10 @@ twice", and guessing there hands one player the other's keyboard.
 | `input/ScreenMouse` | menu cursor movement, clicks, drags, wheel, hover slowdown |
 | `input/KeyMap`, `KeyChars` | VK -> GLFW key, VK -> character |
 | `cursor/VirtualCursor`, `PointerPolicy`, `CursorGeometry` | pointer policy, clip/hide, arrow |
-| `client/DeviceScreen`, `DeviceScreenLayout` | device picker and its geometry |
+| `client/DeviceScreen`, `DeviceScreenLayout` | device picker, its geometry, the two sliders and the sound picker |
 | `client/DeviceClaims`, `util/ClaimStore` | cross-window device ownership through files |
 | `client/TitleButtons`, `KeyShortcuts` | title screen buttons and `F7` / `Shift+F7` / `F8` |
+| `client/SoundDevices`, `util/SoundDeviceNames` | output devices from `ALC_ENUMERATE_ALL_EXT` |
 | `launch/*` | command line reuse, process start, window arrangement, taskbar, window discovery |
 | `config/SplitConfig` | settings file, defaults, clamping |
 | `util/DevicePath` | device path normalisation and matching |

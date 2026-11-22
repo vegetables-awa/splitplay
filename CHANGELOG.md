@@ -151,15 +151,15 @@ Everything below is in one jar: no helper executable, no launcher script, no IPC
 
 ### Checks
 
-`./release.ps1` builds the jar and runs eleven offline suites (498 assertions):
+`./release.ps1` builds the jar and runs eleven offline suites (525 assertions):
 `-LogicCheck` (pointer geometry, screen split, window discovery, device path matching),
 `-KeyMapCheck` (virtual key to GLFW key), `-CommandLineCheck` (child command line rewriting and offline
 uuid), `-ClaimCheck` (device claim store), `-ConfigCheck` (config defaults, clamping, round trip,
 broken files), `-MirrorCheck` (mod jar mirroring), `-JarCheck` (package contents, no readable Mojang
 names, no leftover upstream classes), `-MixinCheck` (every mixin target exists in this Minecraft version
 and every mixin is registered), `-HeldCheck` (press/repeat/release classification, modifier bits,
-release snapshots), `-ScreenCheck` (device picker geometry, overflow counting, hit testing, layout
-invariants across 60 window sizes), `-QueueCheck` (move merging, overflow discarding, capacity clamping,
+release snapshots), `-ScreenCheck` (device picker geometry, title buttons, overflow counting, hit testing,
+layout invariants across 77 window sizes), `-QueueCheck` (move merging, overflow discarding, capacity clamping,
 producer/consumer safety).
 
 ### Known limits
@@ -168,4 +168,6 @@ producer/consumer safety).
 - Joining the same world is the vanilla LAN flow: open to LAN in one window, connect to
   `127.0.0.1:<port>` in the other.
 - An input method (IME) cannot be split per device, so only one window can type Chinese.
-- Windows 10/11 only, Minecraft 1.21.1 + Fabric only.
+- Windows 10/11 only, Minecraft 1.21.1 to 1.21.5 + Fabric only.
+- Microphones cannot be split per window: Minecraft has no voice chat and Windows cannot route an
+  input device per program.

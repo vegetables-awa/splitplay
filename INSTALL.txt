@@ -8,7 +8,12 @@ splitplay - install
    The second window appears in the bottom half of the screen and the taskbar is hidden.
 4. In each window press F8 (or click "Devices") and pick that player's keyboard and mouse.
    Devices already used by the other window are greyed out.
-5. Open a world in one window, choose "Open to LAN", then join 127.0.0.1:<port> in the other.
+5. Optional: sound per window. In each window's device screen, the button in the top right
+   ("Sound: ...") picks an output device for that window - one player on speakers, the other on a
+   headset. "Default" leaves the game's own setting alone. Press F3+T after saving (that reloads
+   resources and reopens the sound device) or just restart the window.
+   Microphones are not split: the game has no voice chat and Windows cannot route input per program.
+6. Open a world in one window, choose "Open to LAN", then join 127.0.0.1:<port> in the other.
    Automatic LAN hosting is not implemented yet.
 
 Some packs (FancyMenu and friends) replace the title screen and never draw our buttons; the keys

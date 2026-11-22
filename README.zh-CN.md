@@ -38,6 +38,11 @@ Minecraft 1.21.1 到 1.21.5（Fabric）本地双人同屏。一个客户端，�
 - [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md)：已验证的整合包、有风险的 mod、硬限制
 - [CHANGELOG.md](CHANGELOG.md)
 
+## 声明
+
+- 本项目完全由 **deepseek-v4.1-Flash** 编写。作者并未理解代码，因此对代码的正确性、稳定性与安全性不做任何保证。
+- 本项目灵感源自 [Mouse&mouse](https://github.com/kafei520-CN/Mouse-mouse)（GPL-3.0），但代码是从零重写的独立实现，**不存在抄袭行为**，未复制其任何代码。
+
 ## 许可
 
 MIT，见 [LICENSE](LICENSE)。

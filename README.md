@@ -43,6 +43,13 @@ Supports Minecraft 1.21.1 to 1.21.5 with the same jar, requires Fabric Loader 0.
 - [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md): tested mod packs, risky mods, hard limits
 - [CHANGELOG.md](CHANGELOG.md)
 
+## Disclaimer
+
+- This project was written entirely by **deepseek-v4.1-Flash**. The author has not read the code line by
+  line, so no guarantee is given about its correctness, stability or safety.
+- The idea comes from [Mouse&mouse](https://github.com/kafei520-CN/Mouse-mouse) (GPL-3.0). This project
+  is an independent rewrite from scratch: **no code was copied from it**.
+
 ## Licence
 
 MIT, see [LICENSE](LICENSE).
